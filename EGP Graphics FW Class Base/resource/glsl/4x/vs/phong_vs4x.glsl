@@ -3,7 +3,7 @@
 	By Dan Buckstein
 	Vertex shader that passes data required to perform Phong shading.
 	
-	Modified by: ______________________________________________________________
+	Modified by: Laura Reilly
 */
 
 // version
@@ -12,14 +12,25 @@
 
 // ****
 // attributes
-
+layout(location = 0) in vec4 position;
+layout(location = 2) in vec4 normal;
+layout(location = 8) in vec4 texcoord;
 
 // ****
 // uniforms
-
+uniform mat4 mvp;
+uniform vec4 lightPos;
+uniform vec4 eyePos;
 
 // ****
 // varyings
+out vertex
+{
+	vec4 normal;
+	vec4 lightVec;
+	vec4 eyeVec;
+	vec2 texcoord;
+} data;
 
 
 // shader function
@@ -27,7 +38,12 @@ void main()
 {
 	// ****
 	// set clip position
+	gl_Position = mvp * position;
 
 	// ****
 	// pass data
+	data.normal = vec4(normal.xyz, 0.0);
+	data.lightVec = lightPos - position;
+	data.eyeVec = eyePos - position;
+	data.texcoord = texcoord.xy;
 }

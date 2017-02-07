@@ -3,7 +3,7 @@
 	By Dan Buckstein
 	Vertex shader that passes color attribute down pipeline.
 	
-	Modified by: ______________________________________________________________
+	Modified by: Laura Reilly
 */
 
 // which version of GLSL is this shader written in
@@ -13,15 +13,17 @@
 // ****
 // attributes: data read in directly from a vertex in VBO
 // format for a single attribute: 
-//		layout (location = <attribute index>) in <type> <name>;
-
+layout (location = 0) in vec4 position;
+layout(location = 3) in vec4 color;
+layout(location = 2) in vec4 normal;
+layout(location = 8) in vec4 textcoord;
 
 // ****
 // uniforms: values that are the same for the entire primitive
 // in GLSL 4.3+ you can hard-set these like attributes: 
 //		layout (location = <uniform index>) uniform <type> <name>;
 // ...or normally (before 4.3): 
-//		uniform <type> <name>;
+	uniform mat4 mvp;
 
 
 // ****
@@ -32,11 +34,23 @@
 //		} <output name>;
 // ...or one-by-one (compatible with version 3.x): 
 //		out <type> <name>;		// <- do this for each one
+out vertex
+{
+	vec4 color; //we are going to interpolate color in the rasterizer
+
+} data;
 
 
 // shader entry point: function executes once per-vertex
 void main()
 {
+	gl_Position = mvp * position; //applying a transformation and a translation to put it into camera space
+	//data.color = color;
+	vec4 normalMapped = normal / 2 + 0.5;
+	data.color = normalMapped;
+
+	//vec4 textcoordMapped = textcoord / 2 + 0.5;
+	data.color = textcoord;// * data.color;
 	// ****
 	// required in vertex processing: set clip position 'gl_Position'
 	// this example: multiply object-space position (within model) by full-
