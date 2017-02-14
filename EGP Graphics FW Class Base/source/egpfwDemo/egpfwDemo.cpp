@@ -524,6 +524,7 @@ void setupShaders()
 			shaders[0] = egpCreateShaderFromSource(EGP_SHADER_VERTEX, files[0].contents);
 
 			*currentProgram = egpCreateProgram();
+			//attaching two different shaders to the program
 			egpAttachShaderToProgram(currentProgram, shaders + 0);
 			egpAttachShaderToProgram(currentProgram, shaders + 1);
 			egpLinkProgram(currentProgram);

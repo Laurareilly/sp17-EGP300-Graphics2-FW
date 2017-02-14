@@ -3,7 +3,7 @@
 	(c) 2017 Dan Buckstein
 	Wavefront OBJ file loader by Dan Buckstein
 
-	Modified by: ______________________________________________________________
+	Modified by: Laura Reilly, Silas Baker, Charlie McGarey
 */
 
 #ifndef __EGPFW_OBJLOADER_H
