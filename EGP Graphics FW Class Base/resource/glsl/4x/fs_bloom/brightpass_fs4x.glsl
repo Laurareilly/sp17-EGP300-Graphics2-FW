@@ -27,5 +27,15 @@ void main()
 {
 	// ****
 	// output: make bright values brighter, make dark values darker
-	fragColor = texture(img, passTexcoord);
+
+	vec4 imgSample = texture(img, passTexcoord);
+	float luminance = 0.2126 * imgSample.r + 0.7152 * imgSample.g + 0.0722 * imgSample.b; //for greyscale weighted average
+	//everythign that's dark stays dark, preserving light, so everything beneath a certain range stays 0
+	luminance *= luminance;
+	luminance *= luminance;
+	luminance *= luminance;
+	luminance *= luminance;
+	fragColor = imgSample * luminance;
+	//fragColor = vec4(luminance);
+	//fragColor = texture(img, passTexcoord);
 }

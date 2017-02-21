@@ -35,9 +35,9 @@ void main()
 	// ****
 	// output: this example: sample texture, copy to target
 	fragColor = texture(tex_dm, data.texcoord); 
-	float colorAVG = (fragColor.r + fragColor.g + fragColor.b ) / 3;
-	fragColor.r *= colorAVG;
-	fragColor.g *= colorAVG;
-	fragColor.b *= colorAVG;
-	fragColor.a = 0.5;
+	//float colorAVG = (fragColor.r + fragColor.g + fragColor.b ) / 3;
+	//fragColor.r *= colorAVG;
+	//fragColor.g *= colorAVG;
+	//fragColor.b *= colorAVG;
+	//fragColor.a = 0.5;
 }
