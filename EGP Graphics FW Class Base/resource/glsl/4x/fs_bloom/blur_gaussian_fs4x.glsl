@@ -73,5 +73,5 @@ void main()
 	// ****
 	// output: Gaussian blur on an arbitrary axis
 	//fragColor = texture(img, passTexcoord);
-	fragColor = Gaussian10(passTexcoord, pixelSizeInv, img);
+	fragColor = Gaussian8(passTexcoord, pixelSizeInv, img);
 }
