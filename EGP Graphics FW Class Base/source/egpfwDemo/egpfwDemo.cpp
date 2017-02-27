@@ -4,11 +4,7 @@
 ////	By Dan Buckstein
 ////	January 2017
 ////
-////	****Modified by: ______________________________________________________
-////	^^^^
-////	NOTE: 4 asterisks anywhere means something you will have to either 
-////		modify or complete to get it working! Good practice for starters: 
-////		write your name beside "modified by" above!
+////	****Modified by: Laura Reilly
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -114,6 +110,8 @@ enum TextureIndex
 	skyboxTexHandle,
 	earthTexHandle_dm, earthTexHandle_sm,
 	moonTexHandle_dm,
+	//i believe i need a handle for my normal map texture
+	sphereNormalHandle,
 
 	//-----------------------------
 	textureCount
@@ -130,6 +128,9 @@ enum GLSLProgramIndex
 	testTexturePassthruProgramIndex, 
 
 	phongProgramIndex,
+
+	//for normal mapping
+	normalMapProgramIndex,
 
 	// bloom
 	bloomBrightProgramIndex, 
@@ -148,6 +149,11 @@ enum GLSLCommonUniformIndex
 
 	unif_dm,
 	unif_sm,
+	unif_normal,
+	unif_lightIntensity,
+	unif_modelViewMat,
+	unif_projectionMat,
+	unif_normalMat,
 
 	unif_pixelSizeInv, 
 	unif_img, 
@@ -409,6 +415,9 @@ void setupTextures()
 		(char *)("../../../../resource/tex/earth/2k/earth_dm_2k.png"),
 		(char *)("../../../../resource/tex/earth/2k/earth_sm_2k.png"),
 		(char *)("../../../../resource/tex/moon/2k/moon_dm_2k.png"),
+		//load in the textures for the normal maps
+		(char *)("../../../../resource/tex/normalMaps/sphereNormalMap.png"),
+		(char *)("../../../../resource/tex/normalMaps/sphereNormalMap_2.png"),
 	};
 
 	// load
@@ -464,6 +473,13 @@ void setupTextures()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+	// normal map texture
+	glBindTexture(GL_TEXTURE_2D, tex[sphereNormalHandle]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 
 	// disable textures
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -490,6 +506,11 @@ void setupShaders()
 		(const char *)("eyePos"),
 		(const char *)("tex_dm"),
 		(const char *)("tex_sm"),
+		(const char *)("tex_normal"),
+		(const char *)("lightIntensity"),
+		(const char *)("modelViewMatrix"),
+		(const char *)("projectionMatrix"),
+		(const char *)("normalMatrix"),
 		(const char *)("pixelSizeInv"),
 		(const char *)("img"),
 		(const char *)("img1"),
@@ -658,6 +679,28 @@ void setupShaders()
 		egpReleaseFileContents(files + 1);
 	}
 
+	// normal maps
+	{
+		currentProgramIndex = normalMapProgramIndex;
+		currentProgram = glslPrograms + currentProgramIndex;
+
+		files[0] = egpLoadFileContents("../../../../resource/glsl/4x/vs/drawNormal_vs.glsl");
+		files[1] = egpLoadFileContents("../../../../resource/glsl/4x/fs/drawNormal_fs.glsl");
+		shaders[0] = egpCreateShaderFromSource(EGP_SHADER_VERTEX, files[0].contents);
+		shaders[1] = egpCreateShaderFromSource(EGP_SHADER_FRAGMENT, files[1].contents);
+
+		*currentProgram = egpCreateProgram();
+		egpAttachShaderToProgram(currentProgram, shaders + 0);
+		egpAttachShaderToProgram(currentProgram, shaders + 1);
+		egpLinkProgram(currentProgram);
+		egpValidateProgram(currentProgram);
+
+		egpReleaseShader(shaders + 0);
+		egpReleaseShader(shaders + 1);
+		egpReleaseFileContents(files + 0);
+		egpReleaseFileContents(files + 1);
+	}
+
 
 	// configure all uniforms at once
 	for (currentProgramIndex = 0; currentProgramIndex < GLSLProgramCount; ++currentProgramIndex)
@@ -673,6 +716,7 @@ void setupShaders()
 		// e.g. image bindings
 		egpSendUniformInt(currentUniformSet[unif_dm], UNIF_INT, 1, imageLocations);
 		egpSendUniformInt(currentUniformSet[unif_sm], UNIF_INT, 1, imageLocations + 1);
+		egpSendUniformInt(currentUniformSet[unif_normal], UNIF_INT, 1, imageLocations); //i dont know wat im doin
 
 		egpSendUniformInt(currentUniformSet[unif_img], UNIF_INT, 1, imageLocations);
 		egpSendUniformInt(currentUniformSet[unif_img1], UNIF_INT, 1, imageLocations + 1);
@@ -975,8 +1019,8 @@ void updateGameState(float dt)
 	// earth: 
 	{
 		// animate daytime and orbit
-		earthDaytime += dt * earthDaytimePeriod;
-		earthOrbit += dt * earthOrbitPeriod;
+		//earthDaytime += dt * earthDaytimePeriod;
+		//earthOrbit += dt * earthOrbitPeriod;
 
 		// calculate model matrix
 		earthModelMatrix = cbmath::makeRotationZ4(earthTilt) * cbmath::makeRotationY4(earthDaytime);
@@ -992,7 +1036,7 @@ void updateGameState(float dt)
 
 	// moon: 
 	{
-		moonOrbit += dt * moonOrbitPeriod;
+		//moonOrbit += dt * moonOrbitPeriod;
 
 		moonModelMatrix = cbmath::makeRotationZ4(moonTilt) * cbmath::makeRotationY4(moonOrbit) * cbmath::makeScale4(moonSize);
 		moonModelMatrix.c3.x = earthModelMatrix.c3.x + cosf(moonOrbit) * moonDistance;
@@ -1029,12 +1073,14 @@ void renderSceneObjects()
 {
 	// draw textured moon
 	{
-		currentProgramIndex = testTextureProgramIndex;
+		//currentProgramIndex = testTextureProgramIndex;
+		currentProgramIndex = normalMapProgramIndex;
 		currentProgram = glslPrograms + currentProgramIndex;
 		currentUniformSet = glslCommonUniforms[currentProgramIndex];
 		egpActivateProgram(currentProgram);
 
-		glBindTexture(GL_TEXTURE_2D, tex[moonTexHandle_dm]);
+		//glBindTexture(GL_TEXTURE_2D, tex[moonTexHandle_dm]);
+		glBindTexture(GL_TEXTURE_2D, tex[sphereNormalHandle]);
 
 		// retained
 		egpSendUniformFloatMatrix(currentUniformSet[unif_mvp], UNIF_MAT4, 1, 0, moonModelViewProjectionMatrix.m);
@@ -1044,21 +1090,31 @@ void renderSceneObjects()
 
 	// draw shaded earth
 	{
-		currentProgramIndex = phongProgramIndex;
+		//currentProgramIndex = phongProgramIndex;
+		currentProgramIndex = normalMapProgramIndex;
 		currentProgram = glslPrograms + currentProgramIndex;
 		currentUniformSet = glslCommonUniforms[currentProgramIndex];
 		egpActivateProgram(currentProgram);
 
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, tex[earthTexHandle_sm]);
+		//glBindTexture(GL_TEXTURE_2D, tex[earthTexHandle_sm]);
+		glBindTexture(GL_TEXTURE_2D, tex[sphereNormalHandle]);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tex[earthTexHandle_dm]);
+
+		float lightIntensity[1] = { 5.0f };
+
+		cbtk::cbmath::mat4 normalMat = cbtk::cbmath::transpose(earthModelInverseMatrix);
 
 		eyePos_object = earthModelInverseMatrix * cameraPosWorld;
 		lightPos_object = earthModelInverseMatrix * lightPos_world;
 		egpSendUniformFloat(currentUniformSet[unif_eyePos], UNIF_VEC4, 1, eyePos_object.v);
 		egpSendUniformFloat(currentUniformSet[unif_lightPos], UNIF_VEC4, 1, lightPos_object.v);
+		egpSendUniformFloat(currentUniformSet[unif_lightIntensity], UNIF_FLOAT, 1, lightIntensity);
 		egpSendUniformFloatMatrix(currentUniformSet[unif_mvp], UNIF_MAT4, 1, 0, earthModelViewProjectionMatrix.m);
+		egpSendUniformFloatMatrix(currentUniformSet[unif_normalMat], UNIF_MAT3, 1, 0, normalMat.m);
+		egpSendUniformFloatMatrix(currentUniformSet[unif_projectionMat], UNIF_MAT4, 1, 0, viewProjMat.m);
+		egpSendUniformFloatMatrix(currentUniformSet[unif_modelViewMat], UNIF_MAT4, 1, 0, earthModelMatrix.m);
 		egpActivateVAO(vao + sphereHiResObjModel);
 		egpDrawActiveVAO();
 	}
