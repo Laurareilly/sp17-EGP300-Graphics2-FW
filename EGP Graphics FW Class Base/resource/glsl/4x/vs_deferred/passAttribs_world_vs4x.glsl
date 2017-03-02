@@ -24,8 +24,9 @@ uniform mat4 viewprojMat;
 uniform mat4 atlasMat;
 uniform float normalScale;
 
-//****
-//varyings
+
+// ****
+// varyings
 out vertexdata
 {
 	vec4 position_world;
@@ -39,10 +40,10 @@ void main()
 {
 	// ****
 	// set proper clip position
-	vec4 worldPos = modelMat * position; //transforming camera matrix, all lighting in terms of world position
+	vec4 worldPos = modelMat * position;
 	pass.position_world = worldPos;
-	pass.normal_world = modelMat * vec4(normal.xyz * normalScale, 0.0); //this preserves the normals of the geometry- undo the scale of the normal for the scale we give to it's geometry
+	pass.normal_world = modelMat * vec4(normal.xyz*normalScale, 0.0);
 	pass.texcoord_atlas = atlasMat * texcoord;
-
+	//pass.texcoord_atlas = texcoord;
 	gl_Position = viewprojMat * worldPos;
 }

@@ -12,6 +12,7 @@
 
 // ****
 // varyings
+// varyings
 in vec2 passTexcoord;
 
 
@@ -23,6 +24,8 @@ uniform sampler2D img_texcoord;
 uniform sampler2D img_light_diffuse;
 uniform sampler2D img_light_specular;
 
+
+// ****
 // target
 layout (location = 0) out vec4 fragColor;
 
@@ -30,6 +33,9 @@ layout (location = 0) out vec4 fragColor;
 // shader function
 void main()
 {
+	// ****
+	// get object texture coordinates to sample surface textures, 
+	//	and also sample results from light pre-pass
 	vec4 texcoord = texture(img_texcoord, passTexcoord);
 
 	vec4 diffuseSample = texture(tex_dm, texcoord.xy);
