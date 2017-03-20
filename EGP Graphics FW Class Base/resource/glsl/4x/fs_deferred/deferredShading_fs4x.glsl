@@ -43,7 +43,7 @@ float calculateAttenuation(float distSq, float maxDistSq)
 
 float evaluateLight(int i, in vec4 position, out vec4 lightVec, out vec4 lightCol)
 {
-	float maxDistSq = lightColor[i].w*lightColor[i].w;
+	const float maxDistSq = 1000.0;
 	lightCol = lightColor[i];
 	lightVec = lightPos[i] - position;
 	float distSq = dot(lightVec, lightVec);

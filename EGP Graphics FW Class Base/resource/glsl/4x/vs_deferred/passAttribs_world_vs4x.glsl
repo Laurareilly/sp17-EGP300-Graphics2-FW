@@ -3,7 +3,7 @@
 	By Dan Buckstein
 	Vertex shader that passes attributes in world space.
 	
-	Modified by: Laura Reilly
+	Modified by: ______________________________________________________________
 */
 
 // version
@@ -44,6 +44,5 @@ void main()
 	pass.position_world = worldPos;
 	pass.normal_world = modelMat * vec4(normal.xyz*normalScale, 0.0);
 	pass.texcoord_atlas = atlasMat * texcoord;
-	//pass.texcoord_atlas = texcoord;
 	gl_Position = viewprojMat * worldPos;
 }

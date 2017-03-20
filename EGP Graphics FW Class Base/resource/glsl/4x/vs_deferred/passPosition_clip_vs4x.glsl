@@ -10,6 +10,7 @@
 #version 410
 
 
+// ****
 // attributes
 layout (location = 0) in vec4 position;
 

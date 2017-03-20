@@ -10,6 +10,9 @@
 // version
 #version 410
 
+
+// ****
+// varyings
 in vec4 passPositionClip;
 
 
@@ -66,7 +69,6 @@ void main()
 	// since we did not generate this fragment using FSQ, 
 	//	need to figure out where we are in screen space...
 	vec2 screenspace = passPositionClip.xy * (0.5 / passPositionClip.w) + 0.5;
-	//vec2 screenspace = gl_FragCoord.xy;
 
 	// ****
 	// output: calculate lighting for this light

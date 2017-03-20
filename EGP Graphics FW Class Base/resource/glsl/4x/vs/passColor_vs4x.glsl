@@ -13,6 +13,7 @@
 // ****
 // attributes: data read in directly from a vertex in VBO
 // format for a single attribute: 
+//		layout (location = <attribute index>) in <type> <name>;
 layout (location = 0) in vec4 position;
 layout (location = 3) in vec4 color;
 
@@ -22,6 +23,7 @@ layout (location = 3) in vec4 color;
 // in GLSL 4.3+ you can hard-set these like attributes: 
 //		layout (location = <uniform index>) uniform <type> <name>;
 // ...or normally (before 4.3): 
+//		uniform <type> <name>;
 uniform mat4 mvp;
 
 
@@ -39,7 +41,14 @@ out vec4 passColor;
 // shader entry point: function executes once per-vertex
 void main()
 {
+	// ****
+	// required in vertex processing: set clip position 'gl_Position'
+	// this example: multiply object-space position (within model) by full-
+	//	stack 'MVP' matrix to get clip-space position that OpenGL needs
 	gl_Position = mvp * position;
-	//vec4 anormal = (normal + 1)/ 2;
-	passColor = color;//textCoord;//anormal;
+
+	// ****
+	// optional step: pass data along to next stage in pipeline
+	// this example: copy inbound color attribute directly to outbound varying
+	passColor = color;
 }
