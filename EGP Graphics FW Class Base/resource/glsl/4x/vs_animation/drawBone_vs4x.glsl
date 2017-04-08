@@ -15,6 +15,10 @@ uniform mat4 mvp;
 
 #define BONES_MAX 64
 
+
+uniform mat4 bones_world[BONES_MAX];
+uniform float boneLengths[BONES_MAX];
+
 // ****
 // other uniform data
 
@@ -23,8 +27,10 @@ void main()
 {
 	// ****
 	// calculate final bone transform
+	mat4 bone = bones_world[gl_InstanceID];
+	bone[2] *= boneLengths[gl_InstanceID];
 	
 	// ****
-	// transform by bone transform before MVP
-	gl_Position = mvp * position;
+	// transform by bone transform before MVP	
+	gl_Position = mvp * bone * position;
 }

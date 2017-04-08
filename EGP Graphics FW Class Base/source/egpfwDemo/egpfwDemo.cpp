@@ -253,11 +253,12 @@ void updateSkeletonForwardKinematics(SimpleSkeleton *skel)
 	unsigned int i;
 
 	// update root joint: no parent, so copy local transform to root transform
-
+	skel->transform_root[0] = skel->bones[0].transform_local;
 
 	// local to root = parent's local to root * local to parent
 	for (i = 1; i < skel->boneCount; ++i)
 	{
+		skel->transform_root[i] = skel->transform_root[skel->bones[i].parentBoneIndex] * skel->bones[i].transform_local;
 
 	}
 }
@@ -271,7 +272,7 @@ void updateSkeletonSkinningMatrices(SimpleSkeleton *skel)
 	// skinning matrix = local to root * inverse local to root bind
 	for (i = 0; i < skel->boneCount; ++i)
 	{
-
+		skel->transform_bindToCurr[i] = skel->transform_root[i] * skel->transform_root_bind_inverse[i];
 	}
 }
 
