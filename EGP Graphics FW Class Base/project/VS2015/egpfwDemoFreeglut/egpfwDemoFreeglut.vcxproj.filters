@@ -113,5 +113,11 @@
     <None Include="..\..\..\resource\glsl\4x\vs_deferred\passPosition_clip_vs4x.glsl">
       <Filter>Resource Files\glsl\4x\vs_deferred</Filter>
     </None>
+    <None Include="..\..\..\resource\glsl\4x\vs\cell_vs.glsl">
+      <Filter>Resource Files\glsl\4x\vs</Filter>
+    </None>
+    <None Include="..\..\..\resource\glsl\4x\fs\cell_fs.glsl">
+      <Filter>Resource Files\glsl\4x\fs</Filter>
+    </None>
   </ItemGroup>
 </Project>

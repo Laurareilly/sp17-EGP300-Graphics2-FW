@@ -112,8 +112,9 @@ egpVertexBufferObjectDescriptor vbo[modelCount] = { 0 };
 enum TextureIndex
 {
 	skyboxTexHandle,
-	atlas_diffuse, 
-	atlas_specular, 
+	atlas_diffuse,
+	atlas_specular,
+	celRampHandle,
 
 	//-----------------------------
 	textureCount
@@ -127,15 +128,18 @@ enum GLSLProgramIndex
 {
 	testColorProgramIndex,
 	testTextureProgramIndex,
-	testTexturePassthruProgramIndex, 
+	testTexturePassthruProgramIndex,
 
 	// deferred rendering
-	gbufferProgramIndex, 
+	gbufferProgramIndex,
 	// deferred shading
-	deferredShadingProgramIndex, 
+	deferredShadingProgramIndex,
 	// deferred lighting
-	deferredLightPassProgramIndex, 
-	deferredCompositeProgramIndex, 
+	deferredLightPassProgramIndex,
+	deferredCompositeProgramIndex,
+
+	//cell shading
+	cellProgramIndex,
 
 //-----------------------------
 	GLSLProgramCount
@@ -489,6 +493,7 @@ void setupTextures()
 		(char *)("../../../../resource/tex/bg/sky_clouds.png"),
 		(char *)("../../../../resource/tex/atlas/atlas_diffuse.png"),
 		(char *)("../../../../resource/tex/atlas/atlas_specular.png"),
+		(char *)("../../../../resource/tex/cel/rampHandle.png"),
 	};
 
 	// load
@@ -535,6 +540,14 @@ void setupTextures()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+	//cell shading
+	glBindTexture(GL_TEXTURE_2D, tex[celRampHandle]);					// activate 2D texture
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	// texture gets small/large, smooth
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);		// texture repeats on horiz axis
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 
 	// disable textures
@@ -725,6 +738,28 @@ void setupShaders()
 
 		files[0] = egpLoadFileContents("../../../../resource/glsl/4x/vs_deferred/passPosition_clip_vs4x.glsl");
 		files[1] = egpLoadFileContents("../../../../resource/glsl/4x/fs_deferred/phong_deferred_pointLight_fs4x.glsl");
+		shaders[0] = egpCreateShaderFromSource(EGP_SHADER_VERTEX, files[0].contents);
+		shaders[1] = egpCreateShaderFromSource(EGP_SHADER_FRAGMENT, files[1].contents);
+
+		*currentProgram = egpCreateProgram();
+		egpAttachShaderToProgram(currentProgram, shaders + 0);
+		egpAttachShaderToProgram(currentProgram, shaders + 1);
+		egpLinkProgram(currentProgram);
+		egpValidateProgram(currentProgram);
+
+		egpReleaseShader(shaders + 0);
+		egpReleaseShader(shaders + 1);
+		egpReleaseFileContents(files + 0);
+		egpReleaseFileContents(files + 1);
+	}
+
+
+	{
+		currentProgramIndex = cellProgramIndex;
+		currentProgram = glslPrograms + currentProgramIndex;
+
+		files[0] = egpLoadFileContents("../../../../resource/glsl/4x/fs/cel_fs.glsl");
+		files[1] = egpLoadFileContents("../../../../resource/glsl/4x/vs/cel_vs.glsl");
 		shaders[0] = egpCreateShaderFromSource(EGP_SHADER_VERTEX, files[0].contents);
 		shaders[1] = egpCreateShaderFromSource(EGP_SHADER_FRAGMENT, files[1].contents);
 
