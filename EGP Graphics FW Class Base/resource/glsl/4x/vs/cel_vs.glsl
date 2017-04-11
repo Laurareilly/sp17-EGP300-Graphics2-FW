@@ -1,39 +1,41 @@
 /*
-	Pass Texcoord
-	By Dan Buckstein
-	Vertex shader that passes texcoord attribute down pipeline.
-	
-	Modified by: Laura Reilly
+	Cel vertex
+	By Laura Reilly
+	Vertex shader for cel shading
 */
 
-// version
 #version 410
 
 
-// ****
 // attributes
 layout (location = 0) in vec4 position;
+layout (location = 2) in vec4 normal;
 layout (location = 8) in vec4 texcoord;
 
 
-// ****
 // uniforms
 uniform mat4 mvp;
+uniform vec4 lightPos;
+uniform vec4 eyePos;
 
 
-// ****
 // varyings
-out vec2 passTexcoord;
+out vertex
+{
+	vec4 normal;
+	vec4 lightVec;
+	vec4 eyeVec;
+	vec2 texcoord;
+} data;
 
 
-// shader function
 void main()
 {
-	// ****
-	// set proper clip position
 	gl_Position = mvp * position;
 
-	// ****
-	// pass data
-	passTexcoord = texcoord.xy;
+	// pass data to the fragment shader
+	data.eyeVec = eyePos - position;
+	data.normal = vec4(normal.xyz, 0.0);
+	data.lightVec = lightPos - position;
+	data.texcoord = texcoord.xy;
 }

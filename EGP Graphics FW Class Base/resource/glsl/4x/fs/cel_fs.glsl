@@ -1,40 +1,30 @@
-
 /*
-	Draw Texture
-	By Dan Buckstein
-	Fragment shader that displays a sample from a texture.
-	
-	Modified by: Laura Reilly
+	Cel fs
+	By Laura Reilly
+	Fragment shader for cel shading
 */
 
-// version
 #version 410
 
+//varyings
+in vertex
+{
+	vec4 normal;
+	vec4 lightVec;
+	vec4 eyeVec;
+	vec2 texcoord;
+} data;
 
-// ****
-// varyings
-in vec2 passTexcoord;
-
-
-// ****
-// uniforms: 
-// in GLSL 4.3+ you can hard-set texture slots: 
-//		layout (binding = <texture index>) uniform <sampler type> <name>;
-// ...otherwise they are declared just like other uniforms: 
-//		uniform <sampler type> <name>;
+//uniforms
 uniform sampler2D tex_dm;
 
-
-// ****
-// target
+//target
 layout (location = 0) out vec4 fragColor;
 
 
 // shader function
 void main()
 {
-	// ****
-	// output: this example: sample texture, copy to target
 	fragColor = texture(tex_dm, passTexcoord);
 }
 
