@@ -96,6 +96,7 @@ enum ModelIndex
 	axesModel, 
 	fsqModel, 
 	skyboxModel, sphere8x6Model, sphere32x24Model,
+	torusModel,
 
 	// loaded models
 	sphereLowResObjModel,
@@ -114,6 +115,8 @@ enum TextureIndex
 	skyboxTexHandle,
 	earthTexHandle_dm, earthTexHandle_sm,
 	moonTexHandle_dm,
+	donutTexHandle,
+	donutBrownTexHandle,
 
 	//-----------------------------
 	textureCount
@@ -380,6 +383,15 @@ void setupGeometry()
 	}
 	egpfwCreateVAOFromOBJ(obj, vao + sphereHiResObjModel, vbo + sphereHiResObjModel);
 	egpfwReleaseOBJ(obj);
+
+	*obj = egpfwLoadBinaryOBJ("torus.txt");
+	if (!obj->data)
+	{
+		*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/torus.obj", NORMAL_LOAD, 1.0);
+		egpfwSaveBinaryOBJ(obj, "torus.txt");
+	}
+	egpfwCreateVAOFromOBJ(obj, vao + torusModel, vbo + torusModel);
+	egpfwReleaseOBJ(obj);
 }
 
 void deleteGeometry()
@@ -409,6 +421,8 @@ void setupTextures()
 		(char *)("../../../../resource/tex/earth/2k/earth_dm_2k.png"),
 		(char *)("../../../../resource/tex/earth/2k/earth_sm_2k.png"),
 		(char *)("../../../../resource/tex/moon/2k/moon_dm_2k.png"),
+		(char *)("../../../../resource/tex/torus/donut_pink.jpg"),
+		(char *)("../../../../resource/tex/torus/donut_brown.jpg"),
 	};
 
 	// load
@@ -459,6 +473,19 @@ void setupTextures()
 
 	// moon textures
 	glBindTexture(GL_TEXTURE_2D, tex[moonTexHandle_dm]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	//donut
+	glBindTexture(GL_TEXTURE_2D, tex[donutTexHandle]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glBindTexture(GL_TEXTURE_2D, tex[donutBrownTexHandle]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1034,32 +1061,32 @@ void renderSceneObjects()
 		currentUniformSet = glslCommonUniforms[currentProgramIndex];
 		egpActivateProgram(currentProgram);
 
-		glBindTexture(GL_TEXTURE_2D, tex[moonTexHandle_dm]);
+		glBindTexture(GL_TEXTURE_2D, tex[donutTexHandle]);
 
 		// retained
 		egpSendUniformFloatMatrix(currentUniformSet[unif_mvp], UNIF_MAT4, 1, 0, moonModelViewProjectionMatrix.m);
-		egpActivateVAO(vao + sphere8x6Model);
+		egpActivateVAO(vao + torusModel);
 		egpDrawActiveVAO();
 	}
 
 	// draw shaded earth
 	{
-		currentProgramIndex = phongProgramIndex;
+		currentProgramIndex = testTextureProgramIndex;
 		currentProgram = glslPrograms + currentProgramIndex;
 		currentUniformSet = glslCommonUniforms[currentProgramIndex];
 		egpActivateProgram(currentProgram);
 
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, tex[earthTexHandle_sm]);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tex[earthTexHandle_dm]);
+		//glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, tex[donutBrownTexHandle]);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, tex[earthTexHandle_dm]);
 
 		eyePos_object = earthModelInverseMatrix * cameraPosWorld;
 		lightPos_object = earthModelInverseMatrix * lightPos_world;
 		egpSendUniformFloat(currentUniformSet[unif_eyePos], UNIF_VEC4, 1, eyePos_object.v);
 		egpSendUniformFloat(currentUniformSet[unif_lightPos], UNIF_VEC4, 1, lightPos_object.v);
 		egpSendUniformFloatMatrix(currentUniformSet[unif_mvp], UNIF_MAT4, 1, 0, earthModelViewProjectionMatrix.m);
-		egpActivateVAO(vao + sphereHiResObjModel);
+		egpActivateVAO(vao + torusModel);
 		egpDrawActiveVAO();
 	}
 }
