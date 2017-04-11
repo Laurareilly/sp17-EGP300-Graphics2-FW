@@ -96,6 +96,7 @@ enum ModelIndex
 	axesModel, 
 	fsqModel, 
 	skyboxModel, sphere8x6Model, sphere32x24Model,
+	torusModel,
 
 	// loaded models
 	sphereLowResObjModel,
@@ -114,6 +115,7 @@ enum TextureIndex
 	skyboxTexHandle,
 	earthTexHandle_dm, earthTexHandle_sm,
 	moonTexHandle_dm,
+	//celRampHandle,
 
 	//-----------------------------
 	textureCount
@@ -130,6 +132,7 @@ enum GLSLProgramIndex
 	testTexturePassthruProgramIndex, 
 
 	phongProgramIndex,
+	celProgramIndex,
 
 //-----------------------------
 	GLSLProgramCount
@@ -340,11 +343,11 @@ void setupGeometry()
 	// binary save/load is not necessary, but it is very fast
 	egpTriOBJDescriptor obj[1];
 
-	// low-res sphere
+//low-res sphere
 	*obj = egpfwLoadBinaryOBJ("sphere8x6_bin.txt");
 	if (!obj->data)
 	{
-		*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/sphere8x6.obj", NORMAL_LOAD, 1.0);
+		*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/sphere8x6NO.obj", NORMAL_LOAD, 1.0);
 		egpfwSaveBinaryOBJ(obj, "sphere8x6_bin.txt");
 	}
 	egpfwCreateVAOFromOBJ(obj, vao + sphereLowResObjModel, vbo + sphereLowResObjModel);
@@ -354,10 +357,20 @@ void setupGeometry()
 	*obj = egpfwLoadBinaryOBJ("sphere32x24_bin.txt");
 	if (!obj->data)
 	{
-		*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/sphere32x24.obj", NORMAL_LOAD, 1.0);
+		*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/sphere32x24NO.obj", NORMAL_LOAD, 1.0);
 		egpfwSaveBinaryOBJ(obj, "sphere32x24_bin.txt");
 	}
 	egpfwCreateVAOFromOBJ(obj, vao + sphereHiResObjModel, vbo + sphereHiResObjModel);
+	egpfwReleaseOBJ(obj);
+
+	// torus
+	*obj = egpfwLoadBinaryOBJ("torus.txt");
+	if (!obj->data)
+	{
+		*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/torus.obj", NORMAL_LOAD, 1.0);
+		egpfwSaveBinaryOBJ(obj, "torus.txt");
+	}
+	egpfwCreateVAOFromOBJ(obj, vao + torusModel, vbo + torusModel);
 	egpfwReleaseOBJ(obj);
 }
 
@@ -930,7 +943,7 @@ void renderGameState()
 
 			// retained
 			egpSendUniformFloatMatrix(currentUniformSet[unif_mvp], UNIF_MAT4, 1, 0, moonModelViewProjectionMatrix.m);
-			egpActivateVAO(vao + sphere8x6Model);
+			egpActivateVAO(vao + sphereLowResObjModel);
 			egpDrawActiveVAO();
 		}
 
@@ -953,7 +966,7 @@ void renderGameState()
 			egpSendUniformFloat(currentUniformSet[unif_eyePos], UNIF_VEC4, 1, eyePos_object.v);
 			egpSendUniformFloat(currentUniformSet[unif_lightPos], UNIF_VEC4, 1, lightPos_object.v);
 			egpSendUniformFloatMatrix(currentUniformSet[unif_mvp], UNIF_MAT4, 1, 0, earthModelViewProjectionMatrix.m);
-			egpActivateVAO(vao + sphereHiResObjModel);
+			egpActivateVAO(vao + sphereLowResObjModel);
 			egpDrawActiveVAO();
 		}
 	}
