@@ -1,3 +1,4 @@
+
 /*
 	Draw Texture
 	By Dan Buckstein
@@ -12,10 +13,8 @@
 
 // ****
 // varyings
-in vertex
-{
-	vec2 texcoord;
-} data;
+in vec2 passTexcoord;
+
 
 // ****
 // uniforms: 
@@ -25,9 +24,11 @@ in vertex
 //		uniform <sampler type> <name>;
 uniform sampler2D tex_dm;
 
+
 // ****
 // target
-layout(location = 0) out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
+
 
 // shader function
 void main()
