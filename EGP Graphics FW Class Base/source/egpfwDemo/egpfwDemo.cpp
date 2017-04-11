@@ -347,7 +347,7 @@ void setupGeometry()
 	*obj = egpfwLoadBinaryOBJ("sphere8x6_bin.txt");
 	if (!obj->data)
 	{
-		*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/sphere8x6NO.obj", NORMAL_LOAD, 1.0);
+		*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/sphere8x6.obj", NORMAL_LOAD, 1.0);
 		egpfwSaveBinaryOBJ(obj, "sphere8x6_bin.txt");
 	}
 	egpfwCreateVAOFromOBJ(obj, vao + sphereLowResObjModel, vbo + sphereLowResObjModel);
@@ -357,21 +357,21 @@ void setupGeometry()
 	*obj = egpfwLoadBinaryOBJ("sphere32x24_bin.txt");
 	if (!obj->data)
 	{
-		*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/sphere32x24NO.obj", NORMAL_LOAD, 1.0);
+		*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/sphere32x24.obj", NORMAL_LOAD, 1.0);
 		egpfwSaveBinaryOBJ(obj, "sphere32x24_bin.txt");
 	}
 	egpfwCreateVAOFromOBJ(obj, vao + sphereHiResObjModel, vbo + sphereHiResObjModel);
 	egpfwReleaseOBJ(obj);
 
-	// torus
-	*obj = egpfwLoadBinaryOBJ("torus.txt");
-	if (!obj->data)
-	{
-		*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/torus.obj", NORMAL_LOAD, 1.0);
-		egpfwSaveBinaryOBJ(obj, "torus.txt");
-	}
-	egpfwCreateVAOFromOBJ(obj, vao + torusModel, vbo + torusModel);
-	egpfwReleaseOBJ(obj);
+	//// torus
+	//*obj = egpfwLoadBinaryOBJ("torus.txt");
+	//if (!obj->data)
+	//{
+	//	*obj = egpfwLoadTriangleOBJ("../../../../resource/obj/torus.obj", NORMAL_LOAD, 1.0);
+	//	egpfwSaveBinaryOBJ(obj, "torus.txt");
+	//}
+	//egpfwCreateVAOFromOBJ(obj, vao + torusModel, vbo + torusModel);
+	//egpfwReleaseOBJ(obj);
 }
 
 void deleteGeometry()
