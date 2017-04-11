@@ -133,6 +133,7 @@ enum GLSLProgramIndex
 	testTexturePassthruProgramIndex, 
 
 	phongProgramIndex,
+	celProgramIndex,
 
 	// bloom
 	bloomBrightProgramIndex, 
@@ -683,6 +684,27 @@ void setupShaders()
 		egpReleaseShader(shaders + 1);
 		egpReleaseFileContents(files + 0);
 		egpReleaseFileContents(files + 1);
+
+
+		//cel shading
+		currentProgramIndex = celProgramIndex;
+		currentProgram = glslPrograms + currentProgramIndex;
+
+		files[0] = egpLoadFileContents("../../../../resource/glsl/4x/vs/cel_vs.glsl");
+		files[1] = egpLoadFileContents("../../../../resource/glsl/4x/fs/cel_fs.glsl");
+		shaders[0] = egpCreateShaderFromSource(EGP_SHADER_VERTEX, files[0].contents);
+		shaders[1] = egpCreateShaderFromSource(EGP_SHADER_FRAGMENT, files[1].contents);
+
+		*currentProgram = egpCreateProgram();
+		egpAttachShaderToProgram(currentProgram, shaders + 0);
+		egpAttachShaderToProgram(currentProgram, shaders + 1);
+		egpLinkProgram(currentProgram);
+		egpValidateProgram(currentProgram);
+
+		egpReleaseShader(shaders + 0);
+		egpReleaseShader(shaders + 1);
+		egpReleaseFileContents(files + 0);
+		egpReleaseFileContents(files + 1);
 	}
 
 
@@ -1056,7 +1078,7 @@ void renderSceneObjects()
 {
 	// draw textured moon
 	{
-		currentProgramIndex = testTextureProgramIndex;
+		currentProgramIndex = celProgramIndex;
 		currentProgram = glslPrograms + currentProgramIndex;
 		currentUniformSet = glslCommonUniforms[currentProgramIndex];
 		egpActivateProgram(currentProgram);
@@ -1071,7 +1093,7 @@ void renderSceneObjects()
 
 	// draw shaded earth
 	{
-		currentProgramIndex = testTextureProgramIndex;
+		currentProgramIndex = celProgramIndex;
 		currentProgram = glslPrograms + currentProgramIndex;
 		currentUniformSet = glslCommonUniforms[currentProgramIndex];
 		egpActivateProgram(currentProgram);
