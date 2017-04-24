@@ -31,6 +31,8 @@ out vertex
 
 void main()
 {
+	//this is actually the same as phong-- might try to use phongs vs instead of
+	//creating this but its too late oops
 	gl_Position = mvp * position;
 
 	// pass data to the fragment shader

@@ -117,6 +117,7 @@ enum TextureIndex
 	moonTexHandle_dm,
 	donutTexHandle,
 	donutBrownTexHandle,
+	rampHandle,
 
 	//-----------------------------
 	textureCount
@@ -424,6 +425,7 @@ void setupTextures()
 		(char *)("../../../../resource/tex/moon/2k/moon_dm_2k.png"),
 		(char *)("../../../../resource/tex/torus/donut_pink.jpg"),
 		(char *)("../../../../resource/tex/torus/donut_brown.jpg"),
+		(char *)("../../../../resource/tex/cel/ramp.png"),
 	};
 
 	// load
@@ -487,6 +489,12 @@ void setupTextures()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	glBindTexture(GL_TEXTURE_2D, tex[donutBrownTexHandle]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glBindTexture(GL_TEXTURE_2D, tex[rampHandle]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1083,7 +1091,11 @@ void renderSceneObjects()
 		currentUniformSet = glslCommonUniforms[currentProgramIndex];
 		egpActivateProgram(currentProgram);
 
+
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tex[donutTexHandle]);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, tex[rampHandle]);
 
 		// retained
 		egpSendUniformFloatMatrix(currentUniformSet[unif_mvp], UNIF_MAT4, 1, 0, moonModelViewProjectionMatrix.m);
@@ -1098,10 +1110,10 @@ void renderSceneObjects()
 		currentUniformSet = glslCommonUniforms[currentProgramIndex];
 		egpActivateProgram(currentProgram);
 
-		//glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, tex[donutBrownTexHandle]);
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, tex[earthTexHandle_dm]);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, tex[donutTexHandle]);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, tex[rampHandle]);
 
 		eyePos_object = earthModelInverseMatrix * cameraPosWorld;
 		lightPos_object = earthModelInverseMatrix * lightPos_world;
