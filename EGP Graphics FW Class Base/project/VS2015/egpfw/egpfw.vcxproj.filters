@@ -42,6 +42,9 @@
     <ClInclude Include="..\..\..\include\egpfw\egpfw\egpfwFrameBuffer.h">
       <Filter>Header Files\egpfw</Filter>
     </ClInclude>
+    <ClInclude Include="Token.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\egpfw\egpfwPrimitiveDataSimple.c">
@@ -58,6 +61,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\source\egpfw\egpfwFrameBuffer.c">
       <Filter>Source Files\c</Filter>
+    </ClCompile>
+    <ClCompile Include="Token.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
